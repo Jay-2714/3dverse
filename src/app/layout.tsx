@@ -2,26 +2,29 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import ReduxProvider from "@/components/ReduxProvider";
+import ErrorBoundary from "next/dist/client/components/error-boundary";
+import { PropsWithChildren } from "react";
 
 
 const inter = Inter({ subsets: ["latin"] });
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+}: PropsWithChildren) {
   return (
     <html lang="en">
       <body
         className={`${inter.className} bg-white`}>
-        <main className="flex flex-col min-h-screen h-screen">
           <ReduxProvider> 
+        <main className="flex flex-col min-h-screen h-screen">
+      
   
           {children}
        
-          </ReduxProvider>
         </main>
+        </ReduxProvider>
         <Toaster position="bottom-right" toastOptions={{duration:2500}}/>
+        
+    
       </body>
     </html>
   );

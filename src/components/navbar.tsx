@@ -71,9 +71,9 @@ const NavBar: React.FC= () => {
         </div>
         <ul className={`flex flex-col md:flex-row justify-start md:ml-7 p-3 gap-4 items-center relative z-10 ${isMobile && !isMenuOpen ? 'hidden' : 'flex'}`}>
           {navItems.map((item) => (
-            <li key={item.name} className="w-full md:w-auto">
+            <li key={item.name} className="w-full md:w-auto ">
               <button
-                className={`relative px-6 py-3 rounded-xl text-white font-bold text-lg transition-all duration-300 ease-in-out overflow-hidden group group-hover:animate-click w-full md:w-auto
+                className={`relative px-6 py-3 rounded-xl text-white hover:scale-110 font-bold text-lg transition-all duration-200 transform active:scale-90 focus:scale-100 ease-in-out overflow-hidden group group-hover:animate-click w-full md:w-auto
                   ${selectedItem === item.name ? 'text-[#ffffff]'  : 'hover:text-[#ffffff]'
                 } ${clickedItem === item.name ? 'animate-click' : ''}`}
                 style={{

@@ -8,7 +8,7 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
-import { auth } from "../../../../firebase/fb";
+import { normalAuth } from "../../../lib/firebase/fbclient";
 import { setRole } from "../../../../redux/roles/roleSlice";
 import { Role } from "../../../../redux/roles/roleSlice";
 import { FcGoogle } from "react-icons/fc";
@@ -22,6 +22,9 @@ import {
 } from "firebase/auth";
 import { Box, Divider } from "@mui/material";
 import { useRouter } from "next/navigation";
+import prisma from "@/lib/db";
+
+
 
 export default function Login() {
   const router = useRouter();
@@ -43,8 +46,11 @@ export default function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      if (auth.currentUser?.emailVerified) {
-        await signInWithEmailAndPassword(auth, username, password);
+      if (normalAuth.currentUser?.emailVerified) {
+        await signInWithEmailAndPassword(normalAuth, username, password);
+        
+        const userId = normalAuth.currentUser.uid;
+        const token = await  normalAuth.currentUser?.getIdToken();
         toast.success("Logged in successfully!");
         setUsername("");
         setPassword("");
@@ -53,6 +59,7 @@ export default function Login() {
         } else {
           dispatch(setRole(Role.user));
         }
+        await storeToken(userId,token);
         router.push('/');
       } else {
         toast.error("Please verify your email address first.");
@@ -66,10 +73,29 @@ export default function Login() {
     }
   };
 
-  const facebooklogin = () => {
-    const provider = new FacebookAuthProvider();
+  const storeToken = async (userId: string, token: string) => {
     try {
-    signInWithPopup(auth, provider)
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, token }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to store token");
+      }
+  
+      console.log("Token stored successfully.");
+    } catch (error) {
+      console.error("Error in storeToken:", error);
+    }
+  };
+  
+
+
+  const socialLogin = (provider: GoogleAuthProvider | FacebookAuthProvider | TwitterAuthProvider ) => {
+    try {
+    signInWithPopup( normalAuth, provider)
     .then(() => {
       toast.success("Logged in successfully!");
 
@@ -77,34 +103,6 @@ export default function Login() {
     }
     catch (error) {
       console.error(error);
-    }
-  }
-  
-  const twitterLogin = async () => {
-    const provider = new TwitterAuthProvider();
-    try {
-    await signInWithPopup(auth, provider)
-    .then((res) => {
-     console.log(res);
-      toast.success("Logged in successfully!");
-    })
-    }
-    catch (error) {
-      console.error(error);
-    }
-  }
-
-  const googlelogin = async () => {
-    const provider = new GoogleAuthProvider();
-    try{
-       await signInWithPopup(auth, provider)
-      .then(() => {
-        
-        toast.success("Logged in successfully!");
-      })
-    }
-    catch (error) {
-      console.log(error);
     }
   }
 
@@ -115,13 +113,13 @@ export default function Login() {
           onSubmit={handleLogin}
           className="flex gap-10 flex-col justify-center px-3 items-center"
         >
-          <div className="p-3 rounded-xl bg-blue-300 font-Roboto font-extrabold text-white  ">
+          <div className="p-3 rounded-xl bg-blueColor font-Roboto font-extrabold text-white  ">
             LOGIN
           </div>
           <TextField3d
             ParentCss="w-full"
             leadingIcon={<EmailIcon className="text-white" />}
-            className="bg-blue-300 button p-5 focus:bg-blue-300 rounded-lg active:bg-blue-300 text-white text-Roboto placeholder:text-white"
+            className="bg-blueColor button p-5 focus:bg-blueColor rounded-lg active:bg-blueColor text-white text-Roboto placeholder:text-white"
             change={(e) => setUsername(e.target.value)}
             onClick={() => console.log()}
             placeholder="USERNAME"
@@ -131,7 +129,7 @@ export default function Login() {
           <TextField3d
             ParentCss="w-full"
             leadingIcon={<KeyIcon className="text-white" />}
-            className="bg-blue-300 button focus:outline-none p-5  focus:bg-blue-300 active:bg-blue-300 rounded-lg text-white outline-none placeholder:text-white"
+            className="bg-blueColor button focus:outline-none p-5  focus:bg-blueColor active:bg-blueColor rounded-lg text-white outline-none placeholder:text-white"
             value={password}
             change={(e) => setPassword(e.target.value)}
             type={isPasswordVisible ? "text" : "password"}
@@ -154,7 +152,7 @@ export default function Login() {
             }
           />
           <button
-            className=" flex p-3 rounded-xl bg-blue-300 text-white font-bold button"
+            className=" flex p-3 rounded-xl bg-blueColor text-white font-bold button"
             type="submit"
             onClick={handleLogin}
           >
@@ -169,16 +167,16 @@ export default function Login() {
           </Divider>
         </Box>
         <div className="flex flex-row justify-evenly w-full">
-        <button className=" flex p-3 rounded-full bg-blue-300 text-white font-bold button mb-3"
-        onClick={googlelogin}>
+        <button className=" flex p-3 rounded-full bg-blueColor text-white font-bold button mb-3"
+        onClick={()=>socialLogin(new GoogleAuthProvider)}>
           <FcGoogle size={30} className="bg-white rounded-full"/>
         </button>
-        <button className=" flex p-3 rounded-full bg-blue-300 text-white font-bold button mb-3"
-        onClick={facebooklogin}>
+        <button className=" flex p-3 rounded-full bg-blueColor text-white font-bold button mb-3"
+        onClick={()=> socialLogin(new FacebookAuthProvider)}>
           <FaFacebook color="#1475f3" size={30} className="bg-white rounded-full p-[2px]" /> 
         </button>
-        <button className=" flex p-3 rounded-full bg-blue-300 text-white font-bold button mb-3"
-        onClick={twitterLogin}>
+        <button className=" flex p-3 rounded-full bg-blueColor text-white font-bold button mb-3"
+        onClick={() => socialLogin(new TwitterAuthProvider)}>
           <FaXTwitter color="white" size={30} className="bg-black rounded-full p-[2px]" /> 
         </button>
         </div>

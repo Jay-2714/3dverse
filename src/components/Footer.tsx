@@ -1,11 +1,42 @@
+'use client'
 import Link from 'next/link';
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaLinkedin } from 'react-icons/fa';
+import { FloatingDock } from './ui/floating-dock';
+import { FaXTwitter } from 'react-icons/fa6';
+
+interface Link {
+  title: string;
+  icon: React.ReactNode;
+  href: string;
+}
+
+const links: Link[] = [
+  {title: 'Facebook',
+  icon: (<FaFacebook size={100} className="hover:text-blue-900" />),
+  href: 'https://www.facebook.com',
+  },
+  {title: 'Twitter',
+    icon: (<FaXTwitter size={100} className="hover:text-blue-900" />),
+    href: 'https://www.twitter.com',
+  },
+  {title: 'Instagram',
+    icon: (<FaInstagram size={100} className="hover:text-blue-900" />),
+    href: 'https://www.instagram.com',
+  },
+  {title: 'Linkedin',
+    icon: (<FaLinkedin  size={100} className="hover:text-blue-900" />),
+    href: 'https://www.linkedin.com',
+  }
+]
+
+
+
 
 export function Footer() {
   return (
-    <footer className="flex absolute w-full bg-blueColor _3d text-white py-6 bottom-0">
-      <div className="container mx-auto px-4 flex flex-col w-1/3 md:flex-row justify-between items-center">
-        <div className="mb-4 md:mb-0">
+    <footer className="flex flex-row relative bottom-0 w-full bg-blueColor _3d text-white py-6 ">
+      <div className="container mx-auto px-4 flex flex-row justify-evenly items-center">
+        <div className="flex w-1/3 mb-4 md:mb-0">
           <ul className="flex flex-col px-4">
             <li>
               <Link href="/" className="hover:text-gray-400">
@@ -29,22 +60,12 @@ export function Footer() {
             </li>
           </ul>
         </div>
-        <div className="flex space-x-4 text-xl w-1/3">
-          <Link href="https://facebook.com" aria-label="Facebook">
-            <FaFacebook className="hover:text-gray-400" />
-          </Link>
-          <Link href="https://twitter.com" aria-label="Twitter">
-            <FaTwitter className="hover:text-gray-400" />
-          </Link>
-          <Link href="https://instagram.com" aria-label="Instagram">
-            <FaInstagram className="hover:text-gray-400" />
-          </Link>
-          <Link href="https://linkedin.com" aria-label="LinkedIn">
-            <FaLinkedin className="hover:text-gray-400" />
-          </Link>
+        <div className="flex  w-1/3 space-x-4 text-xl">
+
+          <FloatingDock items={links} mobileClassName="invisible" desktopClassName='flex flex-row bg-blueColor text-blueColor' />
         </div>
-        <div className="mt-4 md:mt-0 w-1/3">
-          <p className="text-sm text-gray-400">
+        <div className="flex w-1/3 mt-4 md:mt-0 justify-end">
+          <p className="text-sm text-white">
             &copy; {new Date().getFullYear()} 3dverse. All rights reserved.
           </p>
         </div>

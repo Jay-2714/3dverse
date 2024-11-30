@@ -12,7 +12,7 @@ import {
 } from "firebase/auth";
 
 import { toast } from "react-hot-toast";
-import { auth } from "../../../../firebase/fb";
+import { normalAuth } from "../../../lib/firebase/fbclient";
 
 
 
@@ -36,7 +36,7 @@ export default function Register() {
     e.preventDefault();
     try {
       const userCred = await createUserWithEmailAndPassword(
-        auth,
+        normalAuth,
         email,
         password
       );
@@ -61,13 +61,13 @@ export default function Register() {
           onSubmit={handleRegister}
           className="flex gap-10 flex-col justify-center px-3 items-center"
         >
-          <div className="p-3 rounded-xl bg-blue-300 font-Roboto font-extrabold text-white  ">
+          <div className="p-3 rounded-xl bg-blueColor font-Roboto font-extrabold text-white  ">
             REGISTER
           </div>
           <TextField3d
           ParentCss="w-full"
             leadingIcon={<EmailIcon className="text-white" />}
-            className="bg-blue-300 button w-full p-5 focus:bg-blue-300 active:bg-blue-300 text-white text-Roboto rounded-lg placeholder:text-white"
+            className="bg-blueColor button w-full p-5 focus:bg-blueColor active:bg-blueColor text-white text-Roboto rounded-lg placeholder:text-white"
             change={(e) => setEmail(e.target.value)}
             onClick={() => console.log()}
             placeholder="EMAIL"
@@ -78,7 +78,7 @@ export default function Register() {
           <TextField3d
           ParentCss="w-full"
             leadingIcon={<KeyIcon className="text-white" />}
-            className="bg-blue-300 w-full focus:bg-blue-300 active:bg-blue-300 button focus:outline-none p-5 rounded-lg text-white outline-none placeholder:text-white"
+            className="bg-blueColor w-full focus:bg-blueColor active:bg-blueColor button focus:outline-none p-5 rounded-lg text-white outline-none placeholder:text-white"
             value={password}
             change={(e) => setPassword(e.target.value)}
             type={isPasswordVisible ? "text" : "password"}
@@ -101,7 +101,7 @@ export default function Register() {
             }
           />
           <button
-            className=" flex p-3 rounded-xl bg-blue-300 text-white font-bold button mb-3"
+            className=" flex p-3 rounded-xl bg-blueColor text-white font-bold button mb-3"
             type="submit"
           >
             REGISTER

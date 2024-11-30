@@ -1,10 +1,12 @@
 
-import { HomeUi } from "@/components/screens/HomeUi";
+import { ModelsUi } from "@/components/screens/ModelsUi";
 import React from "react";
 
 export function Entry() {
   return(
-    <HomeUi />
+    <div className="h-full">
+    <ModelsUi />
+    </div>
   );
 }
 

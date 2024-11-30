@@ -1,0 +1,105 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("NEXT_PUBLIC_DATABASE_URL")
+}
+
+model Token {
+  id        Int  @id    @default(autoincrement())
+  token     String  @unique
+  userId    String  
+  user       User   @relation(fields: [userId], references: [id])
+}
+
+
+model User {
+  id         String  @id    @default(uuid())
+  email      String  @unique
+  name       String
+  tokens     Token[]
+  role       Role
+  provider   Provider
+  scenes     Scenes[] 
+  models     Models[]
+  intros     Intros[]
+  characters Characters[]
+  upvotes    Upvotes[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  CREATOR
+  USER
+}
+
+enum Provider {
+  Google
+  Facebook
+  X
+}
+
+model Scenes {
+  id          String @id        @default(uuid())
+  name        String
+  description String
+  userId      String 
+  user        User   @relation(fields: [userId],references: [id])
+  upvotes     Upvotes[]
+}
+
+model Models {
+  id           String @id        @default(uuid())
+  name        String
+  description String
+  userId      String 
+  user        User   @relation(fields: [userId], references: [id])
+  upvotes     Upvotes[]
+}
+
+model Intros {
+  id          String @id        @default(uuid())
+  name        String
+  description String
+  userId      String 
+  user        User   @relation(fields: [userId], references: [id])
+  upvotes     Upvotes[]
+}
+
+model Characters {
+  id          String @id        @default(uuid())
+  name        String
+  description String
+  userId      String
+  user        User   @relation(fields: [userId], references: [id])
+  upvotes     Upvotes[]
+}
+ 
+
+model Upvotes {
+  id          String @id        @default(uuid())
+  userId      String 
+  modelId     String?
+  sceneId     String?
+  introId     String?
+  characteId  String?
+  upvoteType  UpvoteType
+  scenes      Scenes? @relation(fields: [sceneId], references: [id])
+  intros      Intros? @relation(fields: [introId], references: [id])
+  characters  Characters? @relation(fields: [characteId],references: [id])
+  models      Models? @relation(fields: [modelId], references: [id])
+  user        User @relation(fields: [userId],references: [id])
+
+  @@unique([userId, sceneId, introId, characteId])
+}
+
+enum UpvoteType {
+  MODELS
+  INTROS
+  SCENES
+}
