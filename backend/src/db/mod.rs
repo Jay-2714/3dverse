@@ -1,12 +1,13 @@
-use actix_web::{web, App, HttpServer, middleware::Logger};
-use sqlx::{PgPool, postgres::PgPoolOptions};
+use diesel::r2d2::{self, ConnectionManager};
+use diesel::PgConnection;
+use std::env;
 
-pub async fn connect_db() -> PgPool {
-    let database_url = std::env::var("DATABASE_URL")
-        .expect("DATABASE_URL must be set in environment");
-    PgPoolOptions::new()
-        .max_connections(5)
-        .connect(&database_url)
-        .await
-        .expect("Failed to connect to the database")
+pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
+
+pub fn connect_db() -> DbPool {
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let manager = ConnectionManager::<PgConnection>::new(database_url);
+    r2d2::Pool::builder()
+        .build(manager)
+        .expect("Failed to create pool.")
 }

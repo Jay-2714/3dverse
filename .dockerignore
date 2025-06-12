@@ -1,64 +1,151 @@
-# Dependencies
+# Version control
+.git
+.gitignore
+.github/
+
+# Dependencies (will be installed in container)
 node_modules
 .pnpm-store
+.npm
+.yarn
 
-# Build outputs
+# Build outputs (will be built in container)
 .next
 out
 build
 dist
+.nuxt
 
-# Version control
-.git
-.github
-.gitignore
+# Development files
+*.md
+!README.md
+CHANGELOG.md
+CONTRIBUTING.md
+.editorconfig
+.prettierrc*
+.eslintrc*
+.eslintcache
+jest.config.*
 
-# Docker related
+# Docker related files
 Docker*
 docker-compose*
 !Dockerfile
 !docker-compose.yml
+.dockerignore
 
-# Environment variables
+# Environment variables (copy specific ones in Dockerfile)
 .env*
 !.env.example
 !.env.sample
 
-# Logs
+# Logs and debugging
 logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
 # IDE and editor files
 .idea
 .vscode
 *.swp
 *.swo
+*~
+.project
+.classpath
+.settings/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
 
 # Testing and coverage
 coverage
 .nyc_output
+.coverage
+*.lcov
+test-results/
+junit.xml
 
-# OS files
-.DS_Store
-Thumbs.db
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Rust backend build artifacts (if building backend separately)
+backend/target/
+backend/Cargo.lock
+**/*.rs.bk
+*.pdb
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db
 
 # Temporary files
 *.tmp
 *.temp
+tmp/
+temp/
 
-# README and documentation files
-# (keep these if you want them in the Docker image)
-# README.md
-# *.md
+# Package manager lock files (will be copied explicitly)
+yarn.lock
+package-lock.json
+# Keep pnpm-lock.yaml for reproducible builds
+!pnpm-lock.yaml
 
-# Prisma (we only need the generated client)
-prisma/migrations
+# Cache directories
+.cache
+.parcel-cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
 
-# Misc
-.editorconfig
-.prettierrc
-.eslintrc
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Security files (handle these explicitly in Dockerfile if needed)
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+keys/
+
+# Firebase
+.firebase/
+firebase-debug.log
+
+# Vercel
+.vercel
+
+# Large 3D model files (uncomment if you want to exclude from Docker image)
+# *.blend
+# *.fbx
+# *.obj
+# *.3ds
+# *.max
+# *.ma
+# *.mb
+
+# Keep optimized web formats
+# !*.glb
+# !*.gltf
+
+# Documentation that's not needed in production
+SECURITY_CHECKLIST.md
+DOCKER.md
+ENV_SETUP.md

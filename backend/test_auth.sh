@@ -1,7 +1,7 @@
 #!/bin/bash
 # A simple script to test the authentication endpoints
 
-BASE_URL="http://localhost:8080/api"
+BASE_URL="${BACKEND_API_URL:-http://localhost:8080/api}"
 
 # Register a new user
 echo "Registering a new user..."

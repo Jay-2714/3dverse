@@ -1,11 +1,13 @@
-use chrono::Duration;
 use serde::{Deserialize, Serialize};
-use jsonWebToken::{EncodingKey, DecodingKey};
-use ring::signature::{Ed25519KeyPair, KeyPair};
+use chrono::{Utc, Duration};
+use jsonwebtoken::{encode, decode, Validation, Algorithm, EncodingKey, DecodingKey};
 
+
+use std::fs;
 
 pub const STANDARD_REFRESH_TOKEN_EXPIRATION: i64 = 60 * 60 * 24 * 30;
 
+#[derive(Serialize, Deserialize)]
 pub struct Claims {
     pub sub: String,
     pub exp: usize,
@@ -16,11 +18,13 @@ pub struct AuthKeys {
     pub decoding_key: DecodingKey,
 }
 
+/// Initialize RSA keys from PEM files
 pub async fn init_auth_keys() -> AuthKeys {
-    let doc = Ed25519KeyPair::generate_pkc8(&ring::rand::SystemRandom::new()).unwrap();
-    let encoding_key = EncodingKey::from_ed_der(doc.as_ref()).unwrap();
-    let pair = Ed25519KeyPair::from_pkcs8(doc.as_ref()).unwrap();
-    let decoding_key = DecodingKey::from_ed_der(pair.public_key().as_ref()).unwrap();
+    let private_key = fs::read("keys/private_key.pem").expect("Failed to read private key");
+    let public_key = fs::read("keys/public_key.pem").expect("Failed to read public key");
+
+    let encoding_key = EncodingKey::from_rsa_pem(&private_key).expect("Invalid RSA private key");
+    let decoding_key = DecodingKey::from_rsa_pem(&public_key).expect("Invalid RSA public key");
 
     AuthKeys {
         encoding_key,
@@ -28,25 +32,25 @@ pub async fn init_auth_keys() -> AuthKeys {
     }
 }
 
-pub fn getToken(username: String, encoding_key: &EncodingKey,exp_duration_seconds: Option<i64>) -> String {
-    let duration = if let None = exp_duration_seconds {
-        STANDARD_REFRESH_TOKEN_EXPIRATION
-    } 
-    else {
-        exp_duration_seconds.unwrap()
-    };
-    let Claims = Claims {
+/// Generate JWT token
+pub fn get_token(username: String, encoding_key: &EncodingKey, exp_duration_seconds: Option<i64>) -> String {
+    let duration = exp_duration_seconds.unwrap_or(STANDARD_REFRESH_TOKEN_EXPIRATION);
+
+    let claims = Claims {
         sub: username,
         exp: (Utc::now() + Duration::seconds(duration)).timestamp() as usize,
     };
-    let token = encode(&jsonWebToken::Header::new(jsonWebToken::Algorithm::EdDSA),&Claims, encoding_key).unwrap();
 
-    token
+    encode(
+        &jsonwebtoken::Header::new(Algorithm::RS256),
+        &claims,
+        encoding_key,
+    )
+    .expect("Token generation failed")
 }
 
-pub fn decode_token(token: &str,decoding_key: &DecodingKey) -> Claims {
-    let validation = Validation::new(Algorithm::EdDSA);
-    let token_data = decode::<Claims>(token, decoding_key, &validation).unwrap();
-
-    tokem_data.claims
+pub fn decode_token(token: &str, decoding_key: &DecodingKey) -> Result<Claims, jsonwebtoken::errors::Error> {
+    let validation = Validation::new(Algorithm::RS256);
+    let token_data = decode::<Claims>(token, decoding_key, &validation)?;
+    Ok(token_data.claims)
 }

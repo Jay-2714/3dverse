@@ -1,37 +1,166 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
+# Dependencies
 /node_modules
 /.pnp
 .pnp.js
 .yarn/install-state.gz
+.pnpm-store/
 
-# testing
+# Testing
 /coverage
+.nyc_output
 
-# next.js
+# Next.js
 /.next/
 /out/
+next-env.d.ts
+*.tsbuildinfo
 
-# production
+# Production builds
 /build
+/dist
 
-# misc
-.DS_Store
+# Environment variables
+.env
+.env*.local
+.env.production
+
+# Authentication & Security
+/keys/*.pem
 *.pem
+*.key
+*.crt
+*.p12
+*.pfx
 
-# debug
+# Vercel
+.vercel
+
+# Debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# local env files
-.env*.local
-.env
+# Diagnostic reports
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
-# vercel
-.vercel
-.env
-# typescript
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Rust backend
+/backend/target/
+/backend/Cargo.lock
+**/*.rs.bk
+*.pdb
+
+# Diesel (Rust ORM)
+/backend/diesel.toml.backup
+
+# 3D Model files (large binary files)
+# Uncomment patterns below if you want to exclude large model files:
+# *.blend
+# *.fbx
+# *.obj
+# *.3ds
+# *.max
+# *.ma
+# *.mb
+
+# But keep smaller web-optimized formats
+# !*.glb
+# !*.gltf
+
+# Firebase
+.firebase/
+firebase-debug.log
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Logs
+logs/
+*.log
+
+# Package manager files
+package-lock.json
+yarn.lock
+# Keep pnpm-lock.yaml as this project uses pnpm
+
+# TypeScript
 *.tsbuildinfo
-next-env.d.ts
+
+# ESLint
+.eslintcache
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+out
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
