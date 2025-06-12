@@ -1,0 +1,9 @@
+[print_schema]
+file = "src/schema.rs"
+custom_type_derives = ["Debug", "Clone", "PartialEq", "Eq"]
+
+[migrations_directory]
+file = "migrations"
+
+[database_url]
+file = "DATABASE_URL"

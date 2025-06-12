@@ -8,23 +8,24 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
-import { normalAuth } from "../../../lib/firebase/fbclient";
 import { setRole } from "../../../../redux/roles/roleSlice";
 import { Role } from "../../../../redux/roles/roleSlice";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
-import {
-  FacebookAuthProvider,
-  GoogleAuthProvider,
-  signInWithPopup,
-  TwitterAuthProvider,
-} from "firebase/auth";
 import { Box, Divider } from "@mui/material";
 import { useRouter } from "next/navigation";
 import prisma from "@/lib/db";
+import z from "zod";
+import { auth } from "@/lib/auth";
+import { authClient } from "@/lib/auth-client";
 
 
+enum Auth {
+  "google",
+  "github",
+  "twitter",
+}
 
 export default function Login() {
   const router = useRouter();
@@ -45,32 +46,29 @@ export default function Login() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      if (normalAuth.currentUser?.emailVerified) {
-        await signInWithEmailAndPassword(normalAuth, username, password);
-        
-        const userId = normalAuth.currentUser.uid;
-        const token = await  normalAuth.currentUser?.getIdToken();
-        toast.success("Logged in successfully!");
-        setUsername("");
-        setPassword("");
-        if (username == "jaysanjaymhatre2714@gmail.com") {
-          dispatch(setRole(Role.admin));
-        } else {
-          dispatch(setRole(Role.user));
-        }
-        await storeToken(userId,token);
-        router.push('/');
-      } else {
-        toast.error("Please verify your email address first.");
+    const res = await fetch("http://localhost:8000", {
+      method: "POST",
+      headers: {"Conten-Type":"application/json"},
+      body: JSON.stringify({ username, password }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const userId = data.userId;
+      if (username == process.env.ADMIN ) {
+        dispatch(setRole(Role.admin));
+        router.push("/");
       }
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        toast.error(err.message);
-      } else {
-        toast.error("An error occurred while logging in.");
+      else{
+        dispatch(setRole(Role.user));
+        router.push("/");
       }
     }
+    else{
+      toast.error("Login failed. Please check your credentials.");
+      return;
+    }
+  
+    
   };
 
   const storeToken = async (userId: string, token: string) => {
@@ -93,18 +91,19 @@ export default function Login() {
   
 
 
-  const socialLogin = (provider: GoogleAuthProvider | FacebookAuthProvider | TwitterAuthProvider ) => {
-    try {
-    signInWithPopup( normalAuth, provider)
-    .then(() => {
-      toast.success("Logged in successfully!");
-
-    })
-    }
-    catch (error) {
-      console.error(error);
+  const socialLogin = async (Authprovider: Auth ) => {
+    if(Authprovider == Auth.github) {
+    const data = await authClient.signIn.social({
+        provider: "github",
+    });}
+    else if(Authprovider == Auth.google) {
+    const data = await authClient.signIn.social({
+        provider: "google",
+    });
     }
   }
+
+
 
   return (
     <div className="flex items-center justify-center h-screen w-screen ">
@@ -114,7 +113,7 @@ export default function Login() {
           className="flex gap-10 flex-col justify-center px-3 items-center"
         >
           <div className="p-3 rounded-xl bg-blueColor font-Roboto font-extrabold text-white  ">
-            LOGIN
+            Login
           </div>
           <TextField3d
             ParentCss="w-full"
@@ -122,7 +121,7 @@ export default function Login() {
             className="bg-blueColor button p-5 focus:bg-blueColor rounded-lg active:bg-blueColor text-white text-Roboto placeholder:text-white"
             change={(e) => setUsername(e.target.value)}
             onClick={() => console.log()}
-            placeholder="USERNAME"
+            placeholder="Email"
             value={username}
             type="text"
           />
@@ -133,7 +132,7 @@ export default function Login() {
             value={password}
             change={(e) => setPassword(e.target.value)}
             type={isPasswordVisible ? "text" : "password"}
-            placeholder={"PASSWORD"}
+            placeholder={"Password"}
             onClick={() => console.log("Function not implemented.")}
             trailingIcon={
               isPasswordVisible ? (
@@ -152,11 +151,11 @@ export default function Login() {
             }
           />
           <button
-            className=" flex p-3 rounded-xl bg-blueColor text-white font-bold button"
+            className=" flex p-5 w-full rounded-xl justify-center bg-blue-500 text-white font-bold button"
             type="submit"
             onClick={handleLogin}
           >
-            LOGIN
+            LOG IN WITH EMAIL
           </button>
           <span>{"Haven't registered yet?"}
           <a href="./register" className="text-blue-500 underline">click here</a></span>
@@ -167,16 +166,16 @@ export default function Login() {
           </Divider>
         </Box>
         <div className="flex flex-row justify-evenly w-full">
-        <button className=" flex p-3 rounded-full bg-blueColor text-white font-bold button mb-3"
-        onClick={()=>socialLogin(new GoogleAuthProvider)}>
+        <button className=" flex p-3 rounded-full bg-blue-500 text-white font-bold button mb-3"
+        onClick={()=>socialLogin(Auth.google)}>
           <FcGoogle size={30} className="bg-white rounded-full"/>
         </button>
-        <button className=" flex p-3 rounded-full bg-blueColor text-white font-bold button mb-3"
-        onClick={()=> socialLogin(new FacebookAuthProvider)}>
+        <button className=" flex p-3 rounded-full bg-blue-500 text-white font-bold button mb-3"
+        onClick={()=> socialLogin(Auth.github)}>
           <FaFacebook color="#1475f3" size={30} className="bg-white rounded-full p-[2px]" /> 
         </button>
-        <button className=" flex p-3 rounded-full bg-blueColor text-white font-bold button mb-3"
-        onClick={() => socialLogin(new TwitterAuthProvider)}>
+        <button className=" flex p-3 rounded-full bg-blue-500 text-white font-bold button mb-3"
+        onClick={() => socialLogin(Auth.twitter)}>
           <FaXTwitter color="white" size={30} className="bg-black rounded-full p-[2px]" /> 
         </button>
         </div>

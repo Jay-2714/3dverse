@@ -58,7 +58,13 @@ const NavBar: React.FC= () => {
               boxShadow: `0 4px 6px rgba(0, 0, 0, 0.3), inset 0 -4px 4px rgba(0, 0, 0, 0.4), inset 0 4px 4px rgba(255, 255, 255, 0.7)`,
             }}
           >
-            <Image className="w-20 h-full p-2 rounded-xl" src={""} alt=""></Image>
+<Image
+  className="w-20 h-full p-2 rounded-xl"
+  src={"/fallback.jpg"} // <-- Use a default image if src is empty
+  alt="loading"
+  width={80}
+  height={80}
+/>
           </div>
           {isMobile && (
             <button

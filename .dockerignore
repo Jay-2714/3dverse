@@ -1,1 +1,64 @@
-node_modues
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build outputs
+.next
+out
+build
+dist
+
+# Version control
+.git
+.github
+.gitignore
+
+# Docker related
+Docker*
+docker-compose*
+!Dockerfile
+!docker-compose.yml
+
+# Environment variables
+.env*
+!.env.example
+!.env.sample
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# IDE and editor files
+.idea
+.vscode
+*.swp
+*.swo
+
+# Testing and coverage
+coverage
+.nyc_output
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# README and documentation files
+# (keep these if you want them in the Docker image)
+# README.md
+# *.md
+
+# Prisma (we only need the generated client)
+prisma/migrations
+
+# Misc
+.editorconfig
+.prettierrc
+.eslintrc

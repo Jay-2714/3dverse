@@ -6,14 +6,7 @@ import KeyIcon from "@mui/icons-material/Key";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 
-import {
-  createUserWithEmailAndPassword,
-  sendEmailVerification,
-} from "firebase/auth";
-
 import { toast } from "react-hot-toast";
-import { normalAuth } from "../../../lib/firebase/fbclient";
-
 
 
 export default function Register() {
@@ -34,24 +27,22 @@ export default function Register() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const userCred = await createUserWithEmailAndPassword(
-        normalAuth,
-        email,
-        password
-      );
-      const user = userCred.user;
-      await sendEmailVerification(user);
-      toast.success("Email verification link sent");
-      setEmail("");
-      setPassword("");
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        toast.error(err.message);
+    const res = await fetch("http://localhost:8000/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Registration successful! Please verify your email.");
+        setEmail("");
+        setPassword("");
       } else {
-        toast.error("An error occurred while logging in.");
+        toast.error(data.message || "Registration failed. Please try again.");
       }
     }
+      
   };
 
   return (

@@ -1,11 +1,10 @@
-
 import { ModelsUi } from "@/components/screens/ModelsUi";
 import React from "react";
 
-export function Entry() {
-  return(
+function Entry() {
+  return (
     <div className="h-full">
-    <ModelsUi />
+      <ModelsUi/>
     </div>
   );
 }

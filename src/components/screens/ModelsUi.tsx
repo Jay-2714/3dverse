@@ -27,7 +27,7 @@ export const ModelsUi = () => {
         onClick={() => console.log("")} 
         type='text'
         value={value}/> */}
-        <PlaceholdersAndVanishInput  placeholders={placeholders} onChange={(e) => setValue(e.target.value)} onSubmit={() => console.log("")}/>
+        {/* <PlaceholdersAndVanishInput  placeholders={placeholders} onChange={(e) => setValue(e.target.value)} onSubmit={() => console.log("")}/> */}
             <div className='flex grid gap-4'>
                 <ModelCard title={"hello"} description={"sefSVASSVSVFDdWEEDHEHKwe iuiuerhuivuysjkkjxd  fiuwehfis jdvuh9u eoiu foijf iwehfiue hdiawudiasi"}/>
             </div>
