@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use chrono::NaiveDateTime;
 use crate::schema::{models_3d, model_views, user_favorites};
-use crate::schema::users;
 
 #[derive(Debug, Clone, Queryable, Selectable, Serialize, Deserialize)]
 #[diesel(table_name = models_3d)]

@@ -6,7 +6,14 @@
     "dev": "next dev -p 4500",
     "build": "next build",
     "start": "next start -p 4500",
-    "lint": "next lint"
+    "lint": "next lint",
+    "docker:dev": "docker-compose up --build",
+    "docker:clean": "docker-compose down -v && docker system prune -f",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "db:reset": "prisma db push --force-reset",
+    "auth:setup": "scripts/setup-auth.bat"
   },
   "dependencies": {
     "@emotion/react": "^11.13.3",

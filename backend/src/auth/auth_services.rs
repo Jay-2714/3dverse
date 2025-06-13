@@ -1,8 +1,6 @@
 use serde::{Deserialize, Serialize};
 use chrono::{Utc, Duration};
 use jsonwebtoken::{encode, decode, Validation, Algorithm, EncodingKey, DecodingKey};
-
-
 use std::fs;
 
 pub const STANDARD_REFRESH_TOKEN_EXPIRATION: i64 = 60 * 60 * 24 * 30;
@@ -13,9 +11,15 @@ pub struct Claims {
     pub exp: usize,
 }
 
+#[derive(Clone)]
 pub struct AuthKeys {
     pub encoding_key: EncodingKey,
     pub decoding_key: DecodingKey,
+}
+
+#[derive(Deserialize)]
+pub struct TokenPayload {
+    pub token: String,
 }
 
 /// Initialize RSA keys from PEM files

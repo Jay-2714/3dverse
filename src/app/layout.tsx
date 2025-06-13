@@ -4,27 +4,27 @@ import { Toaster } from "react-hot-toast";
 import ReduxProvider from "@/components/ReduxProvider";
 import ErrorBoundary from "next/dist/client/components/error-boundary";
 import { PropsWithChildren } from "react";
+// Removed old AuthProvider - now using Better Auth
 
+// Import React debug utility in development
+if (process.env.NODE_ENV === 'development') {
+  import('@/utils/react-debug');
+}
 
 const inter = Inter({ subsets: ["latin"] });
+
 export default function RootLayout({
   children,
 }: PropsWithChildren) {
   return (
     <html lang="en">
-      <body
-        className={`${inter.className} bg-white`}>
-          <ReduxProvider> 
-        <main className="flex flex-col min-h-screen h-screen">
-      
-  
-          {children}
-       
-        </main>
+      <body className={`${inter.className} bg-white`}>
+        <ReduxProvider>
+          <main className="flex flex-col min-h-screen h-screen">
+            {children}
+          </main>
         </ReduxProvider>
-        <Toaster position="bottom-right" toastOptions={{duration:2500}}/>
-        
-    
+        <Toaster position="bottom-right" toastOptions={{ duration: 2500 }} />
       </body>
     </html>
   );

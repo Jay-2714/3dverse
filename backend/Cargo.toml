@@ -13,7 +13,7 @@ actix-web = "4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 jsonwebtoken = "9.3.1"
-chrono = "0.4.31"
+chrono = { version = "0.4.31", features = ["serde"] }
 dotenv = "0.15.0"
 env_logger = "0.10.0"
 argon2 = "0.5.2"
@@ -25,3 +25,4 @@ lettre = "0.11.17"
 tokio = { version = "1.45.1", features = ["macros", "rt-multi-thread"] }
 rand_core = "0.9.3"
 resend-rs = "0.15.0"
+reqwest = { version = "0.11", features = ["json"] }

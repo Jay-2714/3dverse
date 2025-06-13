@@ -8,6 +8,7 @@ diesel::table! {
         password_hash -> Varchar,
         created_at -> Timestamp,
         updated_at -> Timestamp,
+        is_creator -> Bool,
     }
 }
 

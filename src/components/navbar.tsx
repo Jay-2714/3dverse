@@ -1,28 +1,53 @@
 "use client"
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
-import Image  from "next/image";
+import Image from "next/image";
+import { useAuth, usePermissions } from "@/hooks/useAuth";
+import LogoutButton from "./auth/LogoutButton";
+import { Person, AdminPanelSettings, Create } from '@mui/icons-material';
+import { Menu, MenuItem, IconButton } from '@mui/material';
 
-const NavBar: React.FC= () => {
-   interface NavElements{
-     name: string;
-     color: string;
-     path: string;
-   }
-  
+const NavBar: React.FC = () => {
+  interface NavElements {
+    name: string;
+    color: string;
+    path: string;
+    requiredRole?: 'admin' | 'creator' | 'user';
+  }
+
   const router = useRouter();
+  const { isAuthenticated, user, role, isLoading } = useAuth();
+  const permissions = usePermissions();
+  
   const [selectedItem, setSelectedItem] = useState<string>("MODELS");
   const [clickedItem, setClickedItem] = useState<string | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [isMobile, setIsMobile] = useState<boolean>(false);
-  
+  const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
+
   const navItems: NavElements[] = [
-    { name: "HOME", color: "#00bfff", path:""},
+    { name: "HOME", color: "#00bfff", path: "" },
     { name: "MODELS", color: "#00bfff", path: "/" },
     { name: "SCENES", color: "#00bfff", path: "/" },
     { name: "INTROS", color: "#00bfff", path: "/screens" },
     { name: "CHARACTERS", color: "#00bfff", path: "" },
+    // Admin-only items
+    { name: "ADMIN", color: "#dc2626", path: "/admin", requiredRole: "admin" },
+    // Creator items
+    { name: "CREATE", color: "#059669", path: "/create", requiredRole: "creator" },
   ];
+
+  // Filter nav items based on user role
+  const visibleNavItems = navItems.filter(item => {
+    if (!item.requiredRole) return true;
+    if (!isAuthenticated) return false;
+    
+    const roleHierarchy = { admin: 3, creator: 2, user: 1 };
+    const userLevel = roleHierarchy[role] || 0;
+    const requiredLevel = roleHierarchy[item.requiredRole] || 0;
+    
+    return userLevel >= requiredLevel;
+  });
 
   useEffect(() => {
     const handleResize = () => {
@@ -41,6 +66,41 @@ const NavBar: React.FC= () => {
     setIsMenuOpen(false);
   };
 
+  const handleUserMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setUserMenuAnchor(event.currentTarget);
+  };
+
+  const handleUserMenuClose = () => {
+    setUserMenuAnchor(null);
+  };
+
+  const getUserDisplayName = () => {
+    if (!user) return 'User';
+    return user.username || user.email.split('@')[0];
+  };
+
+  const getRoleIcon = () => {
+    switch (role) {
+      case 'admin':
+        return <AdminPanelSettings className="w-4 h-4 text-red-600" />;
+      case 'creator':
+        return <Create className="w-4 h-4 text-green-600" />;
+      default:
+        return <Person className="w-4 h-4 text-blue-600" />;
+    }
+  };
+
+  const getRoleBadgeColor = () => {
+    switch (role) {
+      case 'admin':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'creator':
+        return 'bg-green-100 text-green-800 border-green-200';
+      default:
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+    }
+  };
+
   return (
     <div className="flex flex-col md:flex-row">
       <nav
@@ -51,41 +111,50 @@ const NavBar: React.FC= () => {
         }}
       >
         <div className="flex justify-between items-center p-4 md:p-0">
+          {/* Logo */}
           <div
-            className="relative overflow-hidden h-full"
+            className="relative overflow-hidden h-full cursor-pointer"
+            onClick={() => router.push('/')}
             style={{
               backgroundColor: "#00bfff",
               boxShadow: `0 4px 6px rgba(0, 0, 0, 0.3), inset 0 -4px 4px rgba(0, 0, 0, 0.4), inset 0 4px 4px rgba(255, 255, 255, 0.7)`,
             }}
           >
-<Image
-  className="w-20 h-full p-2 rounded-xl"
-  src={"/fallback.jpg"} // <-- Use a default image if src is empty
-  alt="loading"
-  width={80}
-  height={80}
-/>
+            <Image
+              className="w-20 h-full p-2 rounded-xl"
+              src={"/fallback.jpg"}
+              alt="loading"
+              width={80}
+              height={80}
+            />
           </div>
+          
+          {/* Mobile menu button */}
           {isMobile && (
             <button
-              
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-4 _3d"
+              className="md:hidden p-4 _3d text-white bg-blue-500 rounded"
             >
+              ☰
             </button>
           )}
         </div>
-        <ul className={`flex flex-col md:flex-row justify-start md:ml-7 p-3 gap-4 items-center relative z-10 ${isMobile && !isMenuOpen ? 'hidden' : 'flex'}`}>
-          {navItems.map((item) => (
-            <li key={item.name} className="w-full md:w-auto ">
+
+        {/* Navigation Items */}
+        <ul className={`flex flex-col md:flex-row justify-start md:ml-7 p-3 gap-4 items-center relative z-10 ${
+          isMobile && !isMenuOpen ? 'hidden' : 'flex'
+        }`}>
+          {visibleNavItems.map((item) => (
+            <li key={item.name} className="w-full md:w-auto">
               <button
-                className={`relative px-6 py-3 rounded-xl text-white hover:scale-110 font-bold text-lg transition-all duration-200 transform active:scale-90 focus:scale-100 ease-in-out overflow-hidden group group-hover:animate-click w-full md:w-auto
-                  ${selectedItem === item.name ? 'text-[#ffffff]'  : 'hover:text-[#ffffff]'
+                className={`relative px-6 py-3 rounded-xl text-white hover:scale-110 font-bold text-lg transition-all duration-200 transform active:scale-90 focus:scale-100 ease-in-out overflow-hidden group w-full md:w-auto ${
+                  selectedItem === item.name ? 'text-[#ffffff]' : 'hover:text-[#ffffff]'
                 } ${clickedItem === item.name ? 'animate-click' : ''}`}
                 style={{
                   backgroundColor: item.color,
-                  boxShadow: selectedItem === item.name ? `0 2px 0px rgba(0, 0, 0, 0.01), inset 0 -4px 2px rgba(0, 0, 0, 0.02), inset 0 4px 4px rgba(255, 255, 255, 0.2)`:
-                  `0 4px 6px rgba(0, 0, 0, 0.3), inset 0 -4px 4px rgba(0, 0, 0, 0.4), inset 0 4px 4px rgba(255, 255, 255, 0.7)`,
+                  boxShadow: selectedItem === item.name 
+                    ? `0 2px 0px rgba(0, 0, 0, 0.01), inset 0 -4px 2px rgba(0, 0, 0, 0.02), inset 0 4px 4px rgba(255, 255, 255, 0.2)`
+                    : `0 4px 6px rgba(0, 0, 0, 0.3), inset 0 -4px 4px rgba(0, 0, 0, 0.4), inset 0 4px 4px rgba(255, 255, 255, 0.7)`,
                 }}
                 onClick={() => handleItemClick(item)}
               >
@@ -102,34 +171,104 @@ const NavBar: React.FC= () => {
               </button>
             </li>
           ))}
-          <li className="w-full md:w-auto md:ml-auto">
-
-          </li>
         </ul>
-        <button
-              className="relative px-6 py-2 text-white font-bold text-lg transition-all duration-300 ease-in-out overflow-hidden group w-full md:w-auto"
-              style={{
-                backgroundColor: "#00bfff",
-                boxShadow: `0 4px 6px rgba(0, 0, 0, 0.3), inset 0 -4px 4px rgba(0, 0, 0, 0.4), inset 0 4px 4px rgba(255, 255, 255, 0.7)`,
-              }}
-              onClick={() => router.push('/login')}
-            >
-              <span className="relative z-10">LOGIN</span>
-              <span
-                className="absolute inset-0 bg-white opacity-30 transform scale-x-0 group-hover:scale-x-100"
+
+        {/* Authentication Section */}
+        <div className="flex items-center gap-4 p-4">
+          {isLoading ? (
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+          ) : isAuthenticated && user ? (
+            <div className="flex items-center gap-3">
+              {/* User Role Badge */}
+              <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${
+                getRoleBadgeColor()
+              }`}>
+                {getRoleIcon()}
+                <span className="capitalize">{role}</span>
+              </div>
+              
+              {/* User Menu */}
+              <div className="relative">
+                <button
+                  onClick={handleUserMenuClick}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
+                >
+                  <Person className="w-4 h-4" />
+                  <span className="hidden md:inline">{getUserDisplayName()}</span>
+                  <span className="text-xs">▼</span>
+                </button>
+                
+                {/* Dropdown Menu */}
+                {userMenuAnchor && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border z-50">
+                    <div className="p-3 border-b border-gray-200">
+                      <p className="text-sm font-medium text-gray-900">{getUserDisplayName()}</p>
+                      <p className="text-xs text-gray-500">{user.email}</p>
+                    </div>
+                    <div className="p-1">
+                      <button
+                        onClick={() => {
+                          router.push('/profile');
+                          handleUserMenuClose();
+                        }}
+                        className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
+                      >
+                        Profile Settings
+                      </button>
+                      {permissions.isAdmin && (
+                        <button
+                          onClick={() => {
+                            router.push('/admin/dashboard');
+                            handleUserMenuClose();
+                          }}
+                          className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
+                        >
+                          Admin Dashboard
+                        </button>
+                      )}
+                      <div className="border-t border-gray-200 my-1"></div>
+                      <LogoutButton 
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-red-50 rounded" 
+                        showIcon={false}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <button
+                className="relative px-4 py-2 text-white font-bold text-sm transition-all duration-300 ease-in-out overflow-hidden group rounded-lg"
                 style={{
-                  background: `linear-gradient(to right, rgba(255,255,255,0.8), rgba(255,255,255,0.2))`,
+                  backgroundColor: "#00bfff",
+                  boxShadow: `0 4px 6px rgba(0, 0, 0, 0.3), inset 0 -4px 4px rgba(0, 0, 0, 0.4), inset 0 4px 4px rgba(255, 255, 255, 0.7)`,
                 }}
-              ></span>
-              <span
-                className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out"
-                style={{
-                  boxShadow: `inset 0 -2px 4px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.8)`,
-                }}
-              ></span>
-            </button>
+                onClick={() => router.push('/login')}
+              >
+                <span className="relative z-10">LOGIN</span>
+              </button>
+              
+              <button
+                className="relative px-4 py-2 text-blue-600 font-bold text-sm transition-all duration-300 ease-in-out border-2 border-blue-500 rounded-lg hover:bg-blue-50"
+                onClick={() => router.push('/register')}
+              >
+                REGISTER
+              </button>
+            </div>
+          )}
+        </div>
+        
+        {/* Click outside to close user menu */}
+        {userMenuAnchor && (
+          <div 
+            className="fixed inset-0 z-40" 
+            onClick={handleUserMenuClose}
+          ></div>
+        )}
       </nav>
     </div>
   );
-}
+};
+
 export default NavBar;

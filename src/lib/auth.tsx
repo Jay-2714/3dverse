@@ -1,14 +1,22 @@
 import { betterAuth } from "better-auth";
-import nextAppLoader from "next/dist/build/webpack/loaders/next-app-loader";
 import { nextCookies } from "better-auth/next-js";
-
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import prisma from "./db";
 
 export const auth = betterAuth({
+    database: prismaAdapter(prisma, {
+        provider: "sqlite",
+    }),
     emailAndPassword: {
         enabled: true,
+        requireEmailVerification: true,
+    },
+    session: {
+        expiresIn: 60 * 60 * 24 * 7, // 7 days
+        updateAge: 60 * 60 * 24, // 1 day
     },
     socialProviders: {
-        google:{
+        google: {
             enabled: true,
             prompt: "select_account",
             clientId: process.env.GOOGLE_CLIENT_ID as string,     
@@ -23,6 +31,7 @@ export const auth = betterAuth({
             enabled: true,
             clientId: process.env.TWITTER_CLIENT_ID as string,
             clientSecret: process.env.TWITTER_CLIENT_SECRET as string,
+        }
     },
-    plugins:[nextCookies()],
-}});
+    plugins: [nextCookies()],
+});

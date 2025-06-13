@@ -35,7 +35,7 @@ pub struct UpdateUser {
 
 #[derive(Deserialize)]
 pub struct LoginInfo {
-    pub username: String,
+    pub email: String,
     pub password: String,
 }
 
@@ -59,7 +59,7 @@ pub struct UserResponse {
     pub updated_at: NaiveDateTime,
 }
 
-pub struct forgotPassword {
+pub struct ForgotPassword {
     pub email: String,
     pub new_password: String,
 }

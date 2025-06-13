@@ -10,7 +10,7 @@ import { FcShare } from "react-icons/fc";
 import { Description } from "@radix-ui/react-toast";
 import { FaShoppingCart } from "react-icons/fa";
 
-useGLTF.preload("/models/jay.glb");
+// Model preload moved to prevent SSG errors
 interface Card {
     title: string;
     description?: string;
